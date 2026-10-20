@@ -9,9 +9,10 @@ import '/src/styles/style.css';
 //--------------------------------------------------------------
 // Custom global JS code (shared with all pages)can go here.
 //--------------------------------------------------------------
+import { checkAuthState } from "/src/authentication.js"
 
 // This is an example function. Replace it with your own logic.
 function sayHello() {
-  // TODO: implement your logic here
+  checkAuthState()
 }
 document.addEventListener('DOMContentLoaded', sayHello);

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>My BCIT Project</title>
+    <meta name="comp1800 template" content="My 1800 App">
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Web Components for shared navbar and footer layout -->
+    <script type="module" src="/src/components/site-navbar.js"></script>
+    <script type="module" src="/src/components/site-footer.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <!------------------------------>
+    <!-- Your HTML Layout go here -->
+    <!------------------------------>
+
+    <!-- our own navbar goes here -->
+    <site-navbar></site-navbar>
+    
+    <!-- Main content goes here -->
+    <div class="container">
+        <div class=" px-4 py-5 my-5 text-center">
+            <img class="d-block mx-auto mb-4" src="/images/image.jpg" alt="" width="72" height="57">
+            <h1 class="display-5 fw-bold" id="welcomeMessage">Welcome, my friend!</span></h1>
+            <div class="col-lg-6 mx-auto">
+                <h2>You are logged in to CalebHikes!</h2>
+            </div>
+            <hr>
+            <p>Quote of the day: <span id="quote-goes-here"></span></p>
+        </div>
+    </div>
+
+    <!-- our own footer goes here -->
+    <site-footer></site-footer>
+    
+    <!---------------------------------------------->
+    <!-- Your own JavaScript scripts go here      -->
+    <!---------------------------------------------->
+    <script type="module" src="/src/app.js"></script>
+    <script type="module" src="/src/main.js"></script>
+    <!-- Firebase and authentication related scripts -->
+    <!-- The order of loading matters -->
+    <script type="module" src="/src/firebaseConfig.js"></script>
+    <script type="module" src="/src/authentication.js"></script>
+    <script type="module" src="/src/loginSignup.js"></script>
+
+</body>
+
+</html>
