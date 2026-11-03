@@ -1,5 +1,5 @@
 import { db } from "./firebaseConfig.js";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 
 // Declare variable: the hike ID from the URL (eachHike.html?docID=abc123)
 const params = new URL(window.location.href).searchParams;
@@ -14,8 +14,18 @@ async function displayHikeInfo() {
         const hike = hikeSnap.data();
         const name = hike.name;
         const code = hike.code;
+        const views = hike.views + 1;
+
+        await updateDoc(hikeRef, {
+            views: increment(1)
+        });
 
         // Update the page
+        if (isNaN(views)) {
+            document.getElementById("viewCount").textContent = "1";
+        } else {
+            document.getElementById("viewCount").textContent = views;
+        }
         document.getElementById("hikeName").textContent = name;
         const img = document.getElementById("hikeImage");
         img.src = `./images/${code}.jpg`;
