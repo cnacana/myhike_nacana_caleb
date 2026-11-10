@@ -1,6 +1,7 @@
 import { db } from "./firebaseConfig.js";
 import { onAuthReady } from "./authentication.js";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, documentId, setDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
 // The fields we store in Firestore (email comes from Auth, not from here)
 const fields = ["name", "country", "school", "bio"];
@@ -25,6 +26,9 @@ onAuthReady(async function (user) {
         fields.forEach(field => {
             document.getElementById(field + "Input").value = data[field] || "";
         });
+
+        // 4. NOW favourites is filled, so draw the cards
+        displayFavourites();
     }
 });
 
@@ -72,3 +76,69 @@ async function saveProfile(event) {
 
 // ---- (2) Connect it to the form ----
 document.getElementById("profileForm").addEventListener("submit", saveProfile);
+
+// ------------------------------------------------------------
+// Display Favourite Hikes
+// Retrieves the current user's favourite hikes from Firestore
+// and displays them as cards using the hike card template.
+// If there are no favourites, displays a message instead.
+// ------------------------------------------------------------
+async function displayFavourites() {
+    const container = document.getElementById("hikes-go-here");
+    const cardTemplate = document.getElementById("hikeCardTemplate");
+
+    if (favourites.length === 0) {
+        container.innerHTML = "<p class='text-muted'>You haven't favourited any hikes yet. Go find some!</p>";
+        return;
+    }
+
+    // Fetch exactly those hikes in ONE query
+    const q = query(collection(db, "hikes"), where(documentId(), "in", favourites));
+    const querySnapshot = await getDocs(q);
+
+    // Same card loop as main.js
+    querySnapshot.forEach(doc => {
+        let newcard = cardTemplate.content.cloneNode(true);
+        const hike = doc.data();
+
+        newcard.querySelector('.card-title').textContent = hike.name;
+        newcard.querySelector('.card-text').textContent = hike.details || `Located in ${hike.city}.`;
+        newcard.querySelector('.card-length').textContent = hike.length;
+        newcard.querySelector('.card-image').src = `./images/${hike.code}.jpg`;
+        newcard.querySelector(".read-more").href = `eachHike.html?docID=${doc.id}`;
+        setupHeart(newcard, doc.id);        // ← needs (b) below
+
+        container.appendChild(newcard);
+    });
+}
+
+// ------------------------------------------------------------
+// Set Up Favourite Heart
+// Displays a filled heart if the hike is already a favourite.
+// Adds a click event listener to add or remove the favourite.
+// ------------------------------------------------------------
+function setupHeart(card, hikeID) {
+    const heart = card.querySelector(".fav-btn");
+    if (favourites.includes(hikeID)) {
+        heart.classList.replace("bi-heart", "bi-heart-fill");
+    }
+    heart.addEventListener("click", function () {
+        toggleFavourite(heart, hikeID);
+    });
+}
+
+// ------------------------------------------------------------
+// Toggle Favourite Hike
+// Adds or removes a hike ID from the user's favourites in
+// Firestore, then updates the heart icon to match.
+// ------------------------------------------------------------
+async function toggleFavourite(heart, hikeID) {
+    const userRef = doc(db, "users", currentUser.uid);
+    if (heart.classList.contains("bi-heart-fill")) {
+        await setDoc(userRef, { favourites: arrayRemove(hikeID) }, { merge: true });
+        heart.classList.replace("bi-heart-fill", "bi-heart");
+    } else {
+        await setDoc(userRef, { favourites: arrayUnion(hikeID) }, { merge: true });
+        heart.classList.replace("bi-heart", "bi-heart-fill");
+    }
+}
